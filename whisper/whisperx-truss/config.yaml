@@ -17,7 +17,7 @@ requirements:
   - torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118
   - transformers==4.39.2
   - ffmpeg-python==0.2.0
-  - faster-whisper==1.0.3
+  - faster-whisper==1.0.0
   - pandas==1.5.3
   - nltk==3.8.1
   - setuptools==67.7.2

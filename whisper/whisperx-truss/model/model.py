@@ -42,6 +42,10 @@ class Model:
             temp_audio_file.seek(0)
             audio = whisperx.load_audio(temp_audio_file.name)
 
+            if "initial_prompt" in request:
+                print("@@@@@@@")
+                self.model.options["initial_prompt"] = request["initial_prompt"]
+
             result = self.model.transcribe(audio, batch_size=self.batch_size)
 
             model_a, metadata = whisperx.load_align_model(
@@ -56,7 +60,11 @@ class Model:
                 return_char_alignments=False,
             )
 
-            diarize_segments = self.diarize_model(audio)
+            min_speakers = request.get("min_speakers", 2)
+            max_speakers = request.get("max_speakers", 4)
+            diarize_segments = self.diarize_model(
+                audio, min_speakers=min_speakers, max_speakers=max_speakers
+            )
             diarization_output = whisperx.assign_word_speakers(diarize_segments, result)
 
             result_segments = diarization_output.get("segments")
