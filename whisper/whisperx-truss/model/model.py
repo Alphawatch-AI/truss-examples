@@ -21,9 +21,9 @@ class Model:
         # Need to manually download vad model
         vad_model_path = os.path.join(self._data_dir, "models", "pytorch_model.bin")
         self.model = whisperx.load_model(
-            "medium",
+            "large-v3",
             self.device,
-            language="en",
+            # language="en",
             compute_type=self.compute_type,
             vad_options={"model_fp": vad_model_path},
         )
