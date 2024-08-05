@@ -4,6 +4,7 @@ from typing import Dict
 
 import requests
 import whisperx
+import torch
 
 
 class Model:
@@ -40,11 +41,23 @@ class Model:
         with tempfile.NamedTemporaryFile(suffix=".mp3", delete=True) as temp_audio_file:
             temp_audio_file.write(res.content)
             temp_audio_file.seek(0)
-            audio = whisperx.load_audio(temp_audio_file.name)
+            audio = whisperx.load_audio(temp_audio_file.name, sr=16000)
 
-            if "initial_prompt" in request:
-                print("@@@@@@@")
-                self.model.options["initial_prompt"] = request["initial_prompt"]
+            # Refresh the model so avoid memory leak
+            self.model.cpu()
+            torch.cuda.empty_cache()
+            self.model = whisperx.load_model(
+                "large-v3",
+                self.device,
+                # language="en",
+                compute_type=self.compute_type,
+                asr_options={"initial_prompt": request["initial_prompt"]},
+                vad_options={
+                    "model_fp": os.path.join(
+                        self._data_dir, "models", "pytorch_model.bin"
+                    )
+                },
+            )
 
             result = self.model.transcribe(audio, batch_size=self.batch_size)
 
@@ -68,17 +81,6 @@ class Model:
             diarization_output = whisperx.assign_word_speakers(diarize_segments, result)
 
             result_segments = diarization_output.get("segments")
-            word_seg = diarization_output.get("word_segments")
+            # word_seg = diarization_output.get("word_segments")
 
-            results_segments_with_speakers = []
-            for result_segment in result_segments:
-                results_segments_with_speakers.append(
-                    {
-                        "start": result_segment["start"],
-                        "end": result_segment["end"],
-                        "text": result_segment["text"],
-                        "speaker": result_segment["speaker"],
-                    }
-                )
-
-            return {"model_output": results_segments_with_speakers}
+            return {"transcription": result_segments}
