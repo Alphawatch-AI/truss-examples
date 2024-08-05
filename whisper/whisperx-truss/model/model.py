@@ -44,7 +44,7 @@ class Model:
             audio = whisperx.load_audio(temp_audio_file.name, sr=16000)
 
             # Refresh the model so avoid memory leak
-            self.model.cpu()
+            del self.model
             torch.cuda.empty_cache()
             self.model = whisperx.load_model(
                 "large-v3",
