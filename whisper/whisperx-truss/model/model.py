@@ -24,7 +24,7 @@ class Model:
         self.model = whisperx.load_model(
             "large-v3",
             self.device,
-            # language="en",
+            language="zh",
             compute_type=self.compute_type,
             vad_options={"model_fp": vad_model_path},
         )
@@ -49,7 +49,7 @@ class Model:
             self.model = whisperx.load_model(
                 "large-v3",
                 self.device,
-                # language="en",
+                language="zh",
                 compute_type=self.compute_type,
                 asr_options={"initial_prompt": request["initial_prompt"]},
                 vad_options={
