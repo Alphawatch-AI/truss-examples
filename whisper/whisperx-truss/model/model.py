@@ -49,7 +49,7 @@ class Model:
             self.model = whisperx.load_model(
                 "large-v3",
                 self.device,
-                language="zh",
+                language=request.get("language", "zh"),
                 compute_type=self.compute_type,
                 asr_options={"initial_prompt": request["initial_prompt"]},
                 vad_options={
